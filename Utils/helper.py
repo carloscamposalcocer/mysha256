@@ -13,19 +13,21 @@ def translate(message):
 def chunker(bits, chunk_length=8):
     chunked = []
     for b in range(0, len(bits), chunk_length):
-        chunked.append(bits[b:b+chunk_length])
+        chunked.append(bits[b:b + chunk_length])
     return chunked
+
 
 def fillZeros(bits, length=8, endian='LE'):
     l = len(bits)
     if endian == 'LE':
         for i in range(l, length):
             bits.append(0)
-    else: 
+    else:
         while l < length:
             bits.insert(0, 0)
             l = len(bits)
     return bits
+
 
 def preprocessMessage(message):
     bits = translate(message)
@@ -59,32 +61,13 @@ def initializer(values):
         words.append(fillZeros(word, 32, 'BE'))
     return words
 
+
 def b2Tob16(value):
-  value = ''.join([str(x) for x in value])
-  binaries = []
-  for d in range(0, len(value), 4):
-    binaries.append('0b' + value[d:d+4])
-  hexes = ''
-  for b in binaries:
-    hexes += hex(int(b ,2))[2:]
-  return hexes
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    value = ''.join([str(x) for x in value])
+    binaries = []
+    for d in range(0, len(value), 4):
+        binaries.append('0b' + value[d:d + 4])
+    hexes = ''
+    for b in binaries:
+        hexes += hex(int(b, 2))[2:]
+    return hexes
