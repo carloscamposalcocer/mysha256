@@ -1,8 +1,9 @@
+from setuptools.unicode_utils import decompose
+
+
 def translate(message):
     charcodes = [ord(c) for c in message]
-    bytes = []
-    for char in charcodes:
-        bytes.append(bin(char)[2:].zfill(8))
+    bytes = [bin(char)[2:].zfill(8) for char in charcodes]
     bits = []
     for byte in bytes:
         for bit in byte:
@@ -29,8 +30,19 @@ def fillZeros(bits, length=8, endian='LE'):
     return bits
 
 
+def decomposer(byte_str: bytes):
+    for byte_item in byte_str:
+        for bit in bin(byte_item)[2:].zfill(8):
+            yield int(bit)
+
+
+def as_int_bool(encoded_str):
+    mm = [bit for bit in decomposer(encoded_str)]
+    return mm
+
 def preprocessMessage(message):
-    bits = translate(message)
+    bits = message.encode()
+    bits = as_int_bool(bits)
     length = len(bits)
     message_len = [int(b) for b in bin(length)[2:].zfill(64)]
     if length < 448:

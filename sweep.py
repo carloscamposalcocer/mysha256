@@ -56,3 +56,5 @@ if __name__ == '__main__':
     repetitions = 10
     timed_runs(hlib_sha256, leading_zeros, repetitions)
     timed_runs(my_sha256, leading_zeros, repetitions)
+
+#     initial 7.916

@@ -1,11 +1,13 @@
+import time
+
 from Utils.helper import b2Tob16, preprocessMessage, chunker, initializer
 from Utils.utils import *
 from Utils.constants import *
 
 
 def my_sha256(message):
-    k = initializer(K)
-    h0, h1, h2, h3, h4, h5, h6, h7 = initializer(h_hex)
+    k = Initializer.ks
+    h0, h1, h2, h3, h4, h5, h6, h7 = Initializer.hs
     chunks = preprocessMessage(message)
     for chunk in chunks:
         w = chunker(chunk, 32)
@@ -55,4 +57,10 @@ def my_sha256(message):
 if __name__ == '__main__':
     input_message = 'hola'
     print('Your message: ', input_message)
-    print('Hash: ', sha256(input_message))
+    start_time = time.time()
+    for i in range(10):
+        print('Hash: ', my_sha256(input_message))
+    print(f"Hashing time = {(time.time() - start_time)/10:15.3}secs")
+
+    # 0.08 secs
+    # 0.06 secs encode better
