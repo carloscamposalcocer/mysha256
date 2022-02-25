@@ -6,18 +6,6 @@ import time
 import hash
 
 
-def timed_func(func):
-    def wrapper(*arg, **kw):
-        '''source: http://www.daniweb.com/code/snippet368.html'''
-        t1 = time.time()
-        res = func(*arg, **kw)
-        t2 = time.time()
-        print(f"{func.__name__} ran for {t2 - t1} secs")
-        return res
-
-    return wrapper
-
-
 def hlib_sha256(bin_number):
     result = hashlib.sha256(bin_number)
     hex_str = result.hexdigest()
@@ -52,7 +40,7 @@ def timed_runs(sha256_func, leading_zeros, repetitions):
 
 
 if __name__ == '__main__':
-    leading_zeros = 1
+    leading_zeros = 3
     repetitions = 10
     timed_runs(hlib_sha256, leading_zeros, repetitions)
     timed_runs(my_sha256, leading_zeros, repetitions)

@@ -1,6 +1,17 @@
+import time
 from typing import List
 
-from setuptools.unicode_utils import decompose
+
+def timed_func(func):
+    def wrapper(*arg, **kw):
+        '''source: http://www.daniweb.com/code/snippet368.html'''
+        t1 = time.time()
+        res = func(*arg, **kw)
+        t2 = time.time()
+        print(f"{func.__name__} ran for {t2 - t1} secs")
+        return res
+
+    return wrapper
 
 
 def translate(message):
@@ -17,7 +28,8 @@ def chunker(bits: bytes, chunk_length=8):
     chunked = []
     for b in range(0, len(bits), chunk_length // 8):
         chunked.append(bits[b:b + chunk_length // 8])
-    return chunked
+    chunked_int = [int.from_bytes(value, 'big') for value in chunked]
+    return chunked_int
 
 
 def oldfillZeros(bits, length=8, endian='LE'):
@@ -53,6 +65,7 @@ def as_int_bool(encoded_str):
     return mm
 
 
+# 0sec function
 def preprocessMessage(message):
     bits = message.encode()
     length = len(bits) * 8
