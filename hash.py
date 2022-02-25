@@ -1,9 +1,9 @@
 import hashlib
 import time
 
-from Utils.helper import preprocessMessage, chunker
+from Utils.helper import preprocessMessage, chunker, timed_func
 from Utils import constants
-from Utils.utils import xor, r_rot, r_shift, add, and_int, not_int
+from Utils.utils import r_rot, add, not_int
 
 
 def my_sha256(message):
@@ -12,14 +12,8 @@ def my_sha256(message):
     chunks = preprocessMessage(message)
     for chunk in chunks:
         w = chunker(chunk, 32)
-        for _ in range(48):
-            w.append(0)
-        for i in range(16, 64):
-            s0 = xor(xor(r_rot(w[i - 15], 7), r_rot(w[i - 15], 18)),
-                     r_shift(w[i - 15], 3))
-            s1 = xor(xor(r_rot(w[i - 2], 17), r_rot(w[i - 2], 19)),
-                     r_shift(w[i - 2], 10))
-            w[i] = add(w[i - 16], s0, w[i - 7], s1)
+        w += 48 * [0]
+        pad_w(w)
         a = h0
         b = h1
         c = h2
@@ -29,11 +23,11 @@ def my_sha256(message):
         g = h6
         h = h7
         for j in range(64):
-            S1 = xor(xor(r_rot(e, 6), r_rot(e, 11)), r_rot(e, 25))
-            ch = xor(and_int(e, f), and_int(not_int(e), g))
+            S1 = r_rot(e, 6) ^ r_rot(e, 11) ^ r_rot(e, 25)
+            ch = (e & f) ^ (not_int(e) & g)
             temp1 = add(h, S1, ch, k[j], w[j])
-            S0 = xor(xor(r_rot(a, 2), r_rot(a, 13)), r_rot(a, 22))
-            m = xor(xor(and_int(a, b), and_int(a, c)), and_int(b, c))
+            S0 = r_rot(a, 2) ^ r_rot(a, 13) ^ r_rot(a, 22)
+            m = (a & b) ^ (a & c) ^ (b & c)
             temp2 = add(S0, m)
             h = g
             g = f
@@ -55,6 +49,14 @@ def my_sha256(message):
     for val in [h0, h1, h2, h3, h4, h5, h6, h7]:
         digest += val.to_bytes(4, 'big')
     return digest.hex()
+
+
+# @timed_func
+def pad_w(w):
+    for i in range(16, 64):
+        s0 = r_rot(w[i - 15], 7) ^ r_rot(w[i - 15], 18) ^ w[i - 15] >> 3
+        s1 = r_rot(w[i - 2], 17) ^ r_rot(w[i - 2], 19) ^ w[i - 2] >> 10
+        w[i] = add(w[i - 16], s0, w[i - 7], s1)
 
 
 if __name__ == '__main__':
