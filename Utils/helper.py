@@ -1,3 +1,5 @@
+from typing import List
+
 from setuptools.unicode_utils import decompose
 
 
@@ -11,14 +13,14 @@ def translate(message):
     return bits
 
 
-def chunker(bits, chunk_length=8):
+def chunker(bits: bytes, chunk_length=8):
     chunked = []
-    for b in range(0, len(bits), chunk_length):
-        chunked.append(bits[b:b + chunk_length])
+    for b in range(0, len(bits), chunk_length // 8):
+        chunked.append(bits[b:b + chunk_length // 8])
     return chunked
 
 
-def fillZeros(bits, length=8, endian='LE'):
+def oldfillZeros(bits, length=8, endian='LE'):
     l = len(bits)
     if endian == 'LE':
         for i in range(l, length):
@@ -27,6 +29,16 @@ def fillZeros(bits, length=8, endian='LE'):
         while l < length:
             bits.insert(0, 0)
             l = len(bits)
+    return bits
+
+
+def fillZeros(bits: bytes, length=8, endian='LE'):
+    l = len(bits) * 8
+    missing_zeros = bytes((length - l) // 8)
+    if endian == 'LE':
+        bits = bits + missing_zeros
+    else:
+        bits = missing_zeros + bits
     return bits
 
 
@@ -40,22 +52,25 @@ def as_int_bool(encoded_str):
     mm = [bit for bit in decomposer(encoded_str)]
     return mm
 
+
 def preprocessMessage(message):
     bits = message.encode()
-    bits = as_int_bool(bits)
-    length = len(bits)
-    message_len = [int(b) for b in bin(length)[2:].zfill(64)]
+    length = len(bits) * 8
+    message_len = length.to_bytes(8, 'big')
+
     if length < 448:
-        bits.append(1)
+        bits = bits + b'\x80'
         bits = fillZeros(bits, 448, 'LE')
         bits = bits + message_len
         return [bits]
     elif length == 448:
+        raise NotImplementedError()
         bits.append(1)
         bits = fillZeros(bits, 1024, 'LE')
         bits[-64:] = message_len
         return chunker(bits, 512)
     else:
+        raise NotImplementedError()
         bits.append(1)
         while len(bits) % 512 != 0:
             bits.append(0)
@@ -63,15 +78,9 @@ def preprocessMessage(message):
     return chunker(bits, 512)
 
 
-def initializer(values):
-    binaries = [bin(int(v, 16))[2:] for v in values]
-    words = []
-    for binary in binaries:
-        word = []
-        for b in binary:
-            word.append(int(b))
-        words.append(fillZeros(word, 32, 'BE'))
-    return words
+def initializer(values: List[int]):
+    binaries = [v.to_bytes(4, 'big') for v in values]
+    return binaries
 
 
 def b2Tob16(value):
