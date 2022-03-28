@@ -78,17 +78,17 @@ def preprocessMessage(message):
         return [bits]
     elif length == 448:
         raise NotImplementedError()
-        bits.append(1)
-        bits = fillZeros(bits, 1024, 'LE')
-        bits[-64:] = message_len
-        return chunker(bits, 512)
+        # bits.append(1)
+        # bits = fillZeros(bits, 1024, 'LE')
+        # bits[-64:] = message_len
+        # return chunker(bits, 512)
     else:
         raise NotImplementedError()
-        bits.append(1)
-        while len(bits) % 512 != 0:
-            bits.append(0)
-        bits[-64:] = message_len
-    return chunker(bits, 512)
+        # bits.append(1)
+        # while len(bits) % 512 != 0:
+        #     bits.append(0)
+        # bits[-64:] = message_len
+    # return chunker(bits, 512)
 
 
 def initializer(values: List[int]):
