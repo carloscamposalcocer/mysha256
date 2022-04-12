@@ -186,7 +186,14 @@ class Add(sym.Function):
     def eval(cls, *args):
         num_args = [arg for arg in args if arg.is_Number]
         sym_args = [arg for arg in args if not arg.is_Number]
-        return (sum(num_args) + sum(sym_args)) % (0xFFFFFFFF + 1)
+        return Mod(sum(num_args) + sum(sym_args))
+
+
+class Mod(sym.Function):
+    @classmethod
+    def eval(cls, value):
+        if value.is_Number:
+            return value % (0xFFFFFFFF + 1)
 
 
 if __name__ == '__main__':
